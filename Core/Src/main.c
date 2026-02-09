@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,6 +70,7 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 volatile uint8_t count = 0;
+
 /* USER CODE END 0 */
 
 /**
@@ -119,7 +120,21 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  if(ten_ms_elapsed)
+	  {
+		  task_10_ms();
+		  ten_ms_elapsed = 0;
+	  }
+	  if(hundred_ms_elapsed)
+	  {
+		  task_100_ms();
+		  hundred_ms_elapsed = 0;
+	  }
+	  if(thousand_ms_elapsed)
+	  {
+		  task_1000_ms();
+		  thousand_ms_elapsed = 0;
+	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -550,16 +565,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
 	if(htim->Instance == TIM16)
 	{
-		count++;
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_7); //green LED
-		if(count > 0 && (count % 10 == 0))
+		ten_ms_elapsed = 1;
+		count++; //increments every 10ms
+
+		if(count % 10 == 0)
 		{
-			HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_7); //blue LED
+			hundred_ms_elapsed = 1;
 		}
 
-		if(count > 0 && (count %100 == 0))
+		if(count % 100 == 0)
 		{
-			HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_2); //red LED
+			thousand_ms_elapsed = 1;
+			count = 0;
 		}
 
 	}
