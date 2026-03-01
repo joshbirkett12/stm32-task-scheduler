@@ -69,7 +69,7 @@ static void MX_TIM16_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint8_t count = 0;
+
 
 /* USER CODE END 0 */
 
@@ -119,22 +119,31 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+     if(ten_ms_elapsed)
+     {
+     	task_10_ms();
+     	ten_ms_elapsed = 0;
+     }
+     if(hundred_ms_elapsed)
+     {
+     	task_100_ms();
+     	hundred_ms_elapsed = 0;
+     }
+     if(thousand_ms_elapsed)
+     {
+     	task_1000_ms();
+     	thousand_ms_elapsed = 0;
+     }
+
+     if(task_overrun)
+     {
+     	uint8_t  uart_data[] = "Task overrun detected!\r\n";
+     	HAL_UART_Transmit(&huart1, uart_data, sizeof(uart_data) - 1, HAL_MAX_DELAY);
+        task_overrun = 0;
+     }
+
     /* USER CODE END WHILE */
-	  if(ten_ms_elapsed)
-	  {
-		  task_10_ms();
-		  ten_ms_elapsed = 0;
-	  }
-	  if(hundred_ms_elapsed)
-	  {
-		  task_100_ms();
-		  hundred_ms_elapsed = 0;
-	  }
-	  if(thousand_ms_elapsed)
-	  {
-		  task_1000_ms();
-		  thousand_ms_elapsed = 0;
-	  }
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -348,9 +357,9 @@ static void MX_TIM16_Init(void)
 
   /* USER CODE END TIM16_Init 1 */
   htim16.Instance = TIM16;
-  htim16.Init.Prescaler = 320;
+  htim16.Init.Prescaler = 320-1;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 5000;
+  htim16.Init.Period = 4999;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -561,26 +570,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
-{
-	if(htim->Instance == TIM16)
-	{
-		ten_ms_elapsed = 1;
-		count++; //increments every 10ms
 
-		if(count % 10 == 0)
-		{
-			hundred_ms_elapsed = 1;
-		}
-
-		if(count % 100 == 0)
-		{
-			thousand_ms_elapsed = 1;
-			count = 0;
-		}
-
-	}
-}
 /* USER CODE END 4 */
 
 /**
