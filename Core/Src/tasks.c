@@ -5,6 +5,13 @@
  *      Author: joshb
  */
 
+/*******************************************************************************
+ * DESCRIPTION: Uses a 10ms timer interrupt to schedule LED blinking tasks at
+ * 10ms, 100ms, and 1000ms intervals. If an ms_elapsed flag is still set when
+ * the ISR fires again, a task_overrun flag is asserted, indicating the main
+ * loop did not complete and clear the flag before the next interrupt occurred.
+ ******************************************************************************/
+
 #include "tasks.h"
 
 volatile uint8_t ten_ms_elapsed = 0;
@@ -27,7 +34,6 @@ void task_1000_ms(void)
 {
 	HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin); //red LED
 }
-
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
